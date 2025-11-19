@@ -1,0 +1,76 @@
+body {
+  background: #111;
+  color: #eee;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.chat-container {
+  width: 600px;
+  max-width: 90%;
+  height: 80vh;
+  background: #1e1e1e;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
+}
+
+header {
+  padding: 12px;
+  text-align: center;
+  background: #242424;
+  border-bottom: 1px solid #333;
+}
+
+#chat-box {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.message {
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  max-width: 80%;
+  white-space: pre-wrap;
+}
+
+.message.user {
+  background: #3a3f58;
+  margin-left: auto;
+}
+
+.message.ai {
+  background: #2e2e2e;
+  margin-right: auto;
+}
+
+#chat-form {
+  display: flex;
+  border-top: 1px solid #333;
+}
+
+#user-input {
+  flex: 1;
+  border: none;
+  background: #151515;
+  color: #fff;
+  padding: 10px;
+}
+
+#user-input:focus { outline: none; }
+
+button {
+  border: none;
+  background: #2d72d9;
+  color: #fff;
+  padding: 0 16px;
+  cursor: pointer;
+}
