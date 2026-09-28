@@ -1,35 +1,24 @@
-# 📝 LocalMind – TODO Roadmap
+# LocalMind roadmap
 
-## Core AI / Retrieval
-- [ ] Replace `Embedder` dummy implementation with ONNX Runtime
-- [ ] Replace `VectorStore` in-memory storage with FAISS index
-- [ ] Add SQLite database for:
-  - documents (filename, summary, stats)
-  - chunks (doc_id, text, vector id)
-- [ ] Implement proper cosine similarity or FAISS search for embeddings
+## Done
+- [x] Real HTTP server (cpp-httplib) and JSON (nlohmann/json) instead of stubs
+- [x] SQLite persistence for documents, chunks and vectors
+- [x] Cosine similarity search with top-k and minimum score
+- [x] Pluggable embedders: offline hashing embedder and Ollama embeddings
+- [x] RAG answers via Ollama chat, with extractive fallback and citations
+- [x] `/api/documents` (list, add, get, delete), `/api/stats`, `/api/health`
+- [x] Web UI: upload, paste, document list, citations, loading and error states
+- [x] Content-hash deduplication and automatic re-embedding when the embedder changes
+- [x] Config via flags and environment variables, graceful shutdown
+- [x] Unit + API tests, sanitizer build, CI, Docker and docker-compose
 
-## HTTP API
-- [ ] Add `/documents` endpoint to list all indexed docs
-- [ ] Add `/delete/:id` endpoint to remove documents
-- [ ] Add `/stats` endpoint for debugging and monitoring
-
-## Web UI
-- [ ] Wire UI to real AI answers (not the stub)
-- [ ] Add document sidebar with per-file summaries
-- [ ] Add file upload and PDF support
-- [ ] Integrate PDF.js + Tesseract.js for PDF + OCR
-- [ ] Add loading indicators and error handling
-
-## AI / LLM
-- [ ] Connect to Ollama or local Llama.cpp via HTTP or C API
-- [ ] Implement retrieval-augmented generation (RAG):
-  - embed question
-  - find top-k chunks
-  - build context
-  - send to LLM
-- [ ] Add configurable models (small / large)
-
-## Dev Experience
-- [ ] Add a devcontainer.json for GitHub Codespaces
-- [ ] Add unit tests for Embedder, VectorStore, QueryEngine
-- [ ] Add CI workflow for building and running tests
+## Next
+- [ ] Stream LLM answers to the UI (Ollama `stream: true` + chunked HTTP responses)
+- [ ] PDF support (server-side text extraction, or PDF.js in the browser)
+- [ ] Optional API-key authentication for non-local deployments
+- [ ] Hybrid retrieval: BM25 keyword scores combined with vector scores
+- [ ] Re-ranking of retrieved chunks
+- [ ] ANN index (FAISS / HNSW) for large collections
+- [ ] Conversation memory (follow-up questions)
+- [ ] Prometheus metrics endpoint
+- [ ] devcontainer.json for Codespaces

@@ -1,0 +1,47 @@
+# LocalMind + Ollama. First start pulls the models (a few GB), later starts are instant.
+#   docker compose up --build
+#   open http://localhost:8080
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # One-shot job that downloads the models LocalMind needs.
+  ollama-pull:
+    image: ollama/ollama:latest
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    volumes:
+      - ollama:/root/.ollama
+    entrypoint: ["/bin/sh", "-c", "ollama pull ${LOCALMIND_CHAT_MODEL:-llama3.2} && ollama pull ${LOCALMIND_EMBED_MODEL:-nomic-embed-text}"]
+    restart: "no"
+
+  localmind:
+    build: .
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      OLLAMA_URL: http://ollama:11434
+      LOCALMIND_EMBEDDER: ollama
+      LOCALMIND_EMBED_MODEL: ${LOCALMIND_EMBED_MODEL:-nomic-embed-text}
+      LOCALMIND_CHAT_MODEL: ${LOCALMIND_CHAT_MODEL:-llama3.2}
+      LOCALMIND_INGEST: /app/samples
+    volumes:
+      - localmind-data:/app/data
+    depends_on:
+      ollama-pull:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+volumes:
+  ollama:
+  localmind-data:
