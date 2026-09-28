@@ -17,9 +17,16 @@ inline nlohmann::json ollamaPost(const std::string& baseUrl, const std::string& 
     cli.set_write_timeout(timeoutSec, 0);
 
     auto res = cli.Post(path, body.dump(), "application/json");
-    if (!res)
+    if (!res) {
+        auto err = res.error();
+        // A read failure after connecting means Ollama is up but too slow.
+        if (err == httplib::Error::Read || err == httplib::Error::Timeout)
+            throw std::runtime_error("Ollama " + path + " did not respond within " +
+                                     std::to_string(timeoutSec) +
+                                     "s (slow model? raise --ollama-timeout)");
         throw std::runtime_error("Ollama unreachable at " + baseUrl + " (" +
-                                 httplib::to_string(res.error()) + ")");
+                                 httplib::to_string(err) + ")");
+    }
     nlohmann::json out = nlohmann::json::parse(res->body, nullptr, false);
     if (res->status != 200) {
         std::string detail = (!out.is_discarded() && out.contains("error"))
