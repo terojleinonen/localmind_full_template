@@ -2,18 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>LocalMind – AI Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>LocalMind</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="chat-container">
-    <header>🧠 LocalMind (Template)</header>
-    <div id="chat-box"></div>
-    <form id="chat-form">
-      <input id="user-input" type="text" placeholder="Ask something..." autocomplete="off" />
-      <button type="submit">Send</button>
-    </form>
+  <div class="app">
+    <aside class="sidebar" id="sidebar" aria-label="Documents">
+      <div class="sidebar-head">
+        <h2>Documents</h2>
+        <span class="count" id="doc-count">0</span>
+      </div>
+
+      <label class="dropzone" id="dropzone" tabindex="0">
+        <input type="file" id="file-input" accept=".txt,.md,.markdown,text/plain,text/markdown" multiple hidden />
+        <strong>Add files</strong>
+        <span>Drop .txt / .md here or click to browse</span>
+      </label>
+      <button type="button" class="link-button" id="paste-toggle">…or paste text</button>
+
+      <form class="paste-form" id="paste-form" hidden>
+        <input id="paste-name" type="text" placeholder="Title" maxlength="255" required />
+        <textarea id="paste-text" rows="6" placeholder="Paste text to index…" required></textarea>
+        <div class="row">
+          <button type="button" class="secondary" id="paste-cancel">Cancel</button>
+          <button type="submit">Add</button>
+        </div>
+      </form>
+
+      <ul class="doc-list" id="doc-list"></ul>
+      <p class="empty-hint" id="doc-empty">No documents yet.</p>
+
+      <footer class="sidebar-foot" id="stats"></footer>
+    </aside>
+
+    <main class="chat">
+      <header class="chat-head">
+        <button type="button" class="icon-button" id="sidebar-toggle" aria-label="Toggle documents" aria-controls="sidebar">☰</button>
+        <h1>🧠 LocalMind</h1>
+        <span class="status" id="status" title="Backend status">connecting…</span>
+      </header>
+
+      <section class="messages" id="messages" aria-live="polite">
+        <div class="welcome" id="welcome">
+          <h2>Ask your documents</h2>
+          <p>Everything stays on this machine. Add a few documents on the left, then ask a question — answers cite the passages they came from.</p>
+          <div class="suggestions" id="suggestions"></div>
+        </div>
+      </section>
+
+      <form class="composer" id="composer">
+        <textarea id="question" rows="1" placeholder="Ask a question…" maxlength="4000" autocomplete="off" aria-label="Question"></textarea>
+        <button type="submit" id="send">Ask</button>
+      </form>
+    </main>
   </div>
+
+  <div class="toast" id="toast" role="status" hidden></div>
   <script src="script.js"></script>
 </body>
 </html>

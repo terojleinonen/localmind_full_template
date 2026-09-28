@@ -1,0 +1,7 @@
+build*
+cmake-build-*
+data/db
+.git
+.github
+*.md
+!data/docs/*.md

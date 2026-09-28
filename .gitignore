@@ -1,0 +1,17 @@
+# Build output
+/build*/
+/cmake-build-*/
+compile_commands.json
+
+# Runtime data
+/data/db/*
+!/data/db/.gitkeep
+/data/models/*
+!/data/models/.gitkeep
+
+# Editors / OS
+.vscode/
+.idea/
+.cache/
+.DS_Store
+*.swp

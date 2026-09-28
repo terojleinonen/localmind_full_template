@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    name: ${{ matrix.os }} / ${{ matrix.config }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        config: [Release]
+        include:
+          - os: ubuntu-latest
+            config: Sanitize
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+
+      - name: Configure
+        run: >
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=${{ matrix.config == 'Sanitize' && 'Debug' || matrix.config }}
+          -DLOCALMIND_SANITIZE=${{ matrix.config == 'Sanitize' && 'ON' || 'OFF' }}
+          -DLOCALMIND_WERROR=ON
+
+      - name: Build
+        run: cmake --build build -j4
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Smoke test
+        run: |
+          ./build/localmind_server --port 18080 --llm none --db "$RUNNER_TEMP/smoke.db" --ingest data/docs &
+          for i in $(seq 1 30); do curl -fsS localhost:18080/api/health && break; sleep 1; done
+          curl -fsS -X POST localhost:18080/api/query -H 'Content-Type: application/json' \
+            -d '{"question":"How does retrieval work?"}' | tee /dev/stderr | grep -q '"mode":"extractive"'
+          kill %1
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --check web/script.js
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t localmind:ci .
