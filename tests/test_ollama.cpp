@@ -38,6 +38,7 @@ struct FakeOllama {
         });
         svr.Post("/api/chat", [this](const httplib::Request& req, httplib::Response& res) {
             lastChat = json::parse(req.body);
+            if (lastChat["model"] == "slow") std::this_thread::sleep_for(std::chrono::milliseconds(1500));
             res.set_content(R"({"message":{"role":"assistant","content":"Mars is red [1]."}})",
                             "application/json");
         });
@@ -97,4 +98,11 @@ TEST_CASE("OllamaClient checks availability and generates") {
     CHECK(ollama.lastChat["stream"] == false);
     CHECK(ollama.lastChat["messages"][0]["role"] == "system");
     CHECK(ollama.lastChat["messages"][1]["content"] == "prompt");
+}
+
+TEST_CASE("OllamaClient reports a slow model as a timeout, not as unreachable") {
+    FakeOllama ollama;
+    OllamaClient slow(ollama.url(), "slow", 1);
+    CHECK_THROWS_WITH_AS(slow.generate("sys", "prompt"), doctest::Contains("did not respond within 1s"),
+                         std::runtime_error);
 }
