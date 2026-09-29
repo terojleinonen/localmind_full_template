@@ -8,8 +8,10 @@
 
 namespace localmind {
 
-OllamaClient::OllamaClient(std::string baseUrl, std::string model, int timeoutSec)
-    : baseUrl_(std::move(baseUrl)), model_(std::move(model)), timeoutSec_(timeoutSec) {}
+OllamaClient::OllamaClient(std::string baseUrl, std::string model, int timeoutSec,
+                           int maxTokens)
+    : baseUrl_(std::move(baseUrl)), model_(std::move(model)), timeoutSec_(timeoutSec),
+      maxTokens_(maxTokens) {}
 
 bool OllamaClient::available() const {
     httplib::Client cli(baseUrl_);
@@ -35,13 +37,15 @@ std::string OllamaClient::generate(const std::string& system,
         {"stream", false},
         {"messages", {{{"role", "system"}, {"content", system}},
                       {{"role", "user"}, {"content", prompt}}}},
-        {"options", {{"temperature", 0.2}}},
+        {"options", {{"temperature", 0.2}, {"num_predict", maxTokens_}}},
     };
     auto res = detail::ollamaPost(baseUrl_, "/api/chat", body, timeoutSec_);
     std::string content;
     if (res.contains("message") && res["message"].is_object())
         content = res["message"].value("content", "");
     if (content.empty()) throw std::runtime_error("Ollama returned an empty answer");
+    if (res.value("done_reason", "") == "length")
+        content += " … (answer cut off at the length limit)";
     return content;
 }
 
@@ -51,7 +55,7 @@ std::unique_ptr<LlmClient> makeLlmClient(const Config& cfg) {
         return nullptr;
     }
     auto client = std::make_unique<OllamaClient>(cfg.ollamaUrl, cfg.chatModel,
-                                                 cfg.ollamaTimeoutSec);
+                                                 cfg.ollamaTimeoutSec, cfg.maxAnswerTokens);
     if (client->available()) {
         Log::info("Using Ollama chat model " + cfg.chatModel + " at " + cfg.ollamaUrl);
     } else {

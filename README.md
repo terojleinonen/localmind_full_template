@@ -98,6 +98,7 @@ Every option is a flag or an environment variable (flags win). Run
 | `--embedder` | `LOCALMIND_EMBEDDER` | `hashing` (`ollama` for semantic search) |
 | `--llm` | `LOCALMIND_LLM` | `ollama` (`none` = extractive only) |
 | `--ollama-url` | `OLLAMA_URL` | `http://127.0.0.1:11434` |
+| `--max-answer-tokens` | `LOCALMIND_MAX_ANSWER_TOKENS` | `400` (bounds answer length and time) |
 | `--chat-model` / `--embed-model` | `LOCALMIND_CHAT_MODEL` / `LOCALMIND_EMBED_MODEL` | `llama3.2` / `nomic-embed-text` |
 | `--top-k` / `--min-score` | `LOCALMIND_TOP_K` / `LOCALMIND_MIN_SCORE` | `4` / `0.05` |
 | `--chunk-size` / `--chunk-overlap` | `LOCALMIND_CHUNK_SIZE` / `LOCALMIND_CHUNK_OVERLAP` | `800` / `120` |

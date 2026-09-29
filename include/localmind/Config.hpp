@@ -30,6 +30,7 @@ struct Config {
     std::string embedModel = "nomic-embed-text";
     std::string chatModel = "llama3.2";
     int ollamaTimeoutSec = 120;
+    int maxAnswerTokens = 400;            // caps generation time
 
     std::string logLevel = "info";
 };
