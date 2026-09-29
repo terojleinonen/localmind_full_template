@@ -97,6 +97,8 @@ const std::vector<Option>& options() {
          [](Config& c, const std::string& v) { c.chatModel = v; }},
         {"--ollama-timeout", "LOCALMIND_OLLAMA_TIMEOUT", "Ollama request timeout in seconds (default 120)",
          [](Config& c, const std::string& v) { c.ollamaTimeoutSec = toInt("ollama-timeout", v, 1, 3600); }},
+        {"--max-answer-tokens", "LOCALMIND_MAX_ANSWER_TOKENS", "Max tokens the LLM may generate per answer (default 400)",
+         [](Config& c, const std::string& v) { c.maxAnswerTokens = toInt("max-answer-tokens", v, 16, 8192); }},
         {"--log-level", "LOCALMIND_LOG_LEVEL", "debug | info | warn | error (default info)",
          [](Config& c, const std::string& v) { oneOf("log-level", v, {"debug", "info", "warn", "warning", "error"}); c.logLevel = v; }},
     };

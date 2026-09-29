@@ -21,7 +21,9 @@ public:
 // Chat completion via Ollama's /api/chat endpoint.
 class OllamaClient : public LlmClient {
 public:
-    OllamaClient(std::string baseUrl, std::string model, int timeoutSec);
+    // maxTokens bounds the answer length (Ollama's num_predict), which also
+    // bounds how long a slow or rambling model can take.
+    OllamaClient(std::string baseUrl, std::string model, int timeoutSec, int maxTokens = 400);
     std::string name() const override { return "ollama:" + model_; }
     bool available() const override;
     std::string generate(const std::string& system,
@@ -31,6 +33,7 @@ private:
     std::string baseUrl_;
     std::string model_;
     int timeoutSec_;
+    int maxTokens_;
 };
 
 // Returns nullptr when generation is disabled (cfg.llm == "none").

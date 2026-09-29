@@ -21,6 +21,7 @@ TEST_CASE("defaults, environment and flags are layered") {
     CHECK(cfg.topK == 7);    // env beats default
     CHECK(cfg.llm == "none");
     CHECK(cfg.host == "127.0.0.1");
+    CHECK(cfg.maxAnswerTokens == 400);
     CHECK(cfg.ingestPaths == std::vector<std::string>{"a", "b"});
 }
 
@@ -36,6 +37,7 @@ TEST_CASE("invalid options are reported") {
     CHECK(fails({"--bogus"}));
     CHECK(fails({"--port"}));
     CHECK(fails({"--chunk-size", "100", "--chunk-overlap", "100"}));
+    CHECK(fails({"--max-answer-tokens", "5"}));
 }
 
 TEST_CASE("--help exits early with usage") {

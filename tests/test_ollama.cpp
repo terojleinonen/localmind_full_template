@@ -39,8 +39,10 @@ struct FakeOllama {
         svr.Post("/api/chat", [this](const httplib::Request& req, httplib::Response& res) {
             lastChat = json::parse(req.body);
             if (lastChat["model"] == "slow") std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-            res.set_content(R"({"message":{"role":"assistant","content":"Mars is red [1]."}})",
-                            "application/json");
+            // Like Ollama: done_reason is "length" when num_predict cut the answer short.
+            json out = {{"message", {{"role", "assistant"}, {"content", "Mars is red [1]."}}},
+                        {"done_reason", lastChat["model"] == "wordy" ? "length" : "stop"}};
+            res.set_content(out.dump(), "application/json");
         });
         port = svr.bind_to_any_port("127.0.0.1");
         thread = std::thread([this] { svr.listen_after_bind(); });
@@ -105,4 +107,14 @@ TEST_CASE("OllamaClient reports a slow model as a timeout, not as unreachable") 
     OllamaClient slow(ollama.url(), "slow", 1);
     CHECK_THROWS_WITH_AS(slow.generate("sys", "prompt"), doctest::Contains("did not respond within 1s"),
                          std::runtime_error);
+}
+
+TEST_CASE("OllamaClient caps answer length and flags truncated answers") {
+    FakeOllama ollama;
+    OllamaClient llm(ollama.url(), "llama3.2", 5, 123);
+    CHECK(llm.generate("sys", "prompt") == "Mars is red [1].");
+    CHECK(ollama.lastChat["options"]["num_predict"] == 123);
+
+    OllamaClient wordy(ollama.url(), "wordy", 5, 16);
+    CHECK(wordy.generate("sys", "prompt").find("cut off at the length limit") != std::string::npos);
 }
